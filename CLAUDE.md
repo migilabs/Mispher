@@ -1,6 +1,6 @@
 # Mispher
 
-Personal conversation recorder for Michele's Apple devices (Apple Watch Ultra 4, iPhone 14 Pro Max, Mac). Minutes after a Recording ends, a usable Protocol with Action items is ready: findable in Apple Notes and queryable by Claude over MCP. One user, never a product.
+Personal conversation recorder for Michele's Apple devices (Apple Watch Ultra 4, iPhone 14 Pro Max on iOS 27, AirPods Pro 2, Mac). Minutes after a Recording ends, a usable Protocol with Action items is ready: findable in Apple Notes and queryable by Claude over MCP. One user, never a product.
 
 Full concept with mockups, cost model and risk list: [Mispher: Konzept mit Mockups](https://claude.ai/artifact/5D9rtWEP95cy7RVZDy5HMi) (German). This file is the living record: when a phase settles a decision or a measurement, write it here. Domain terms are defined in `GLOSSARY.md`.
 
@@ -10,7 +10,7 @@ Full concept with mockups, cost model and risk list: [Mispher: Konzept mit Mocku
 
 - A Recording starts within 2 s, using only Michele's own Apple devices: the Action Button on the Watch, a Control Center or Lock Screen control on the iPhone (the 14 Pro Max has no Action Button).
 - One Recording mixes Swiss German, Standard German and English.
-- The Protocol is always Standard German: Summary, Decisions, Action items.
+- The Protocol is always Standard German: Summary, Decisions, Action items, plus the sections its Template adds.
 - Search finds conversations two ways: Apple Notes search and Claude via MCP.
 - Liquid Glass design matching iOS, watchOS and macOS 26.
 - AirPods in: record through the AirPods mic; otherwise through the recording device's mic.
@@ -107,7 +107,7 @@ Build and test commands: add them here once P0 has created the Xcode project.
 
 Each phase ends on its definition of done (DoD).
 
-- **P0 Preparation**: Developer Program, API accounts with spending limits, this repo. DoD: empty apps run on Watch, iPhone and Mac.
+- **P0 Preparation**: Developer Program (paid, active), API accounts with spending limits, this repo. DoD: empty apps run on Watch, iPhone and Mac.
 - **P1 Tests without an app**: AI chain on 3 real Recordings (Swiss German, mixed, English); Notes bridge by script; mini Watch app recording via AirPods, also during a phone call. DoD: provider decision recorded here; test note found via search; Audio source comparison Watch / Watch+AirPods / iPhone+AirPods noted.
 - **P2 iPhone MVP**: record, chain, list, search, Live Activity, Markdown in iCloud Drive. DoD: 60-min Recording yields a Protocol in ≤ 5 min; Claude Desktop reads the file; chain tests green.
 - **P3 Mac Notes bridge**: watch folder, HTML, AppleScript. DoD: note appears ≤ 1 min after the Mac wakes; a hand-edited note is never overwritten (test).
