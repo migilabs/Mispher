@@ -33,7 +33,7 @@ The text of a Recording as returned by the transcription model.
 _Avoid_: Transkript
 
 **Protocol**:
-The German document Mispher writes from a Recording: Summary, Decisions and Action items.
+The German document Mispher writes from a Recording. It always has a Summary, Decisions and Action items, plus any sections its Template adds.
 _Avoid_: Protokoll, minutes, notes, summary
 
 **Summary**:
@@ -49,5 +49,5 @@ A follow-up recorded in the Protocol, with an owner and an optional due date.
 _Avoid_: Aufgabe, task, todo
 
 **Template**:
-The instructions that shape the Protocol for one kind of Recording, such as a meeting or a voice note.
-_Avoid_: Vorlage, preset
+The instructions that shape the Protocol for one kind of Recording: which sections it adds to the core three, and their order, length and tone. Customer meeting, Internal meeting and Voice note are Templates.
+_Avoid_: Vorlage, preset, type
