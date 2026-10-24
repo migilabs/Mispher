@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+
+# Xcode and SwiftPM
+build/
+DerivedData/
+.build/
+.swiftpm/
+xcuserdata/
+*.xcuserstate
+
+# Secrets: API keys live in the Keychain
+.env
+.env.*
+*.p8
+*.p12
+*.mobileprovision
+
+# Audio: test recordings live outside the repo
+*.m4a
+*.wav
+*.caf
+
+# Claude Code personal settings
+.claude/settings.local.json
