@@ -46,7 +46,15 @@ _Avoid_: Entscheid, Entscheidung
 
 **Action item**:
 A follow-up recorded in the Protocol, with an owner and an optional due date.
-_Avoid_: Aufgabe, task, todo
+_Avoid_: Aufgabe, task, todo, next step
+
+**Open question**:
+A point raised in a Recording but not settled, as recorded in the Protocol.
+_Avoid_: open point, offener Punkt, issue
+
+**Requirement**:
+Something the customer needs, as recorded in a Customer meeting Protocol.
+_Avoid_: Anforderung, need, ask
 
 **Template**:
 The instructions that shape the Protocol for one kind of Recording: which sections it adds to the core three, and their order, length and tone. Customer meeting, Internal meeting and Voice note are Templates.
