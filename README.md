@@ -1,6 +1,6 @@
 # Mispher
 
-Personal conversation recorder for Apple Watch, iPhone and Mac. Record a meeting, Teams call or voice note, and minutes later a German protocol with action items is in Apple Notes and queryable from Claude over MCP.
+Personal conversation recorder for Apple Watch, iPhone and Mac. Record a meeting, Teams call or voice note, and minutes later a German Protocol with Action items is in Apple Notes and queryable from Claude over MCP.
 
 - Concept and mockups: [Mispher: Konzept mit Mockups](https://claude.ai/artifact/5D9rtWEP95cy7RVZDy5HMi)
 - Status: P0, preparation. No app code yet.
