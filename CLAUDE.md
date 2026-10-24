@@ -4,7 +4,7 @@ Personal conversation recorder for Michele's Apple devices (Apple Watch Ultra 4,
 
 Full concept with mockups, cost model and risk list: [Mispher: Konzept mit Mockups](https://claude.ai/artifact/5D9rtWEP95cy7RVZDy5HMi) (German). This file is the living record: when a phase settles a decision or a measurement, write it here. Domain terms are defined in `GLOSSARY.md`.
 
-**Current phase: P0** (preparation). No app code yet.
+**Current phase: P0** (preparation). No app code yet. Open decisions for the iPhone MVP live on the wayfinder map [Map: iPhone MVP spec (P0–P2)](https://github.com/migilabs/Mispher/issues/3); read it before planning MVP work.
 
 ## Goals
 
@@ -40,7 +40,7 @@ No server of our own. Markdown in iCloud Drive is the **source of truth**; Apple
 
 ## File format
 
-The concept's draft, with German keys. Being redone in English keys (Protocol content stays German) on the wayfinder map.
+The concept's draft, with German keys. Being redone in English keys (Protocol content stays German) in [What does the Markdown file look like](https://github.com/migilabs/Mispher/issues/14).
 
 `iCloud Drive/Mispher/YYYY-MM-DD <Titel>.md`, YAML front matter plus fixed sections:
 
