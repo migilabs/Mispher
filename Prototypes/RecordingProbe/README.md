@@ -40,6 +40,7 @@ Use the default recorder (**AVAudioRecorder → one .m4a**) unless a step says o
 - 2e. Unlock, start a voice memo in Voice Memos, stop it, lock again.
 - 2f. Repeat 2a with **No interruptions from system alerts** on, and call alerts set to banner style.
 - The log shows `INTERRUPTION began/ended`, `shouldResume`, and whether `session reactivated` or `reactivation REFUSED` (with an error such as `'!int'`).
+- iOS 27 deprecates `shouldResume` in favour of a new resumption-recommendation notification. Any line starting `SESSION NOTIFICATION` is that, or another audio-session notification the probe doesn't handle; it shows the name and its contents.
 
 **3. App killed mid-Recording** (for each of the three recorders):
 - 3a. Swipe the app away while recording.

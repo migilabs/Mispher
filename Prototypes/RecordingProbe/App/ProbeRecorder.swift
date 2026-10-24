@@ -65,6 +65,17 @@ final class ProbeRecorder: ObservableObject {
         center.addObserver(forName: .AVAudioEngineConfigurationChange, object: nil, queue: .main) { [weak self] note in
             MainActor.assumeIsolated { self?.handleEngineConfigurationChange(note) }
         }
+        // Catch-all: logs every other AVAudioSession notification by name, so iOS 27's
+        // resumptionRecommendationNotification shows up without needing the iOS 27 SDK.
+        let handled: Set<NSNotification.Name> = [
+            AVAudioSession.interruptionNotification,
+            AVAudioSession.routeChangeNotification,
+            AVAudioSession.mediaServicesWereResetNotification,
+        ]
+        center.addObserver(forName: nil, object: session, queue: .main) { note in
+            guard !handled.contains(note.name) else { return }
+            ProbeLog.shared.log("SESSION NOTIFICATION \(note.name.rawValue) userInfo=\(note.userInfo.map { "\($0)" } ?? "nil")")
+        }
     }
 
     // MARK: Start and stop
