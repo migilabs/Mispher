@@ -67,6 +67,14 @@ final class ProbeRecorder: ObservableObject {
         center.addObserver(forName: .AVAudioEngineConfigurationChange, object: nil, queue: .main) { [weak self] note in
             MainActor.assumeIsolated { self?.handleEngineConfigurationChange(note) }
         }
+        // Lock state without asking the tester: protected data goes unavailable a few seconds
+        // after the device locks, and available again on unlock.
+        center.addObserver(forName: UIApplication.protectedDataWillBecomeUnavailableNotification, object: nil, queue: .main) { _ in
+            ProbeLog.shared.log("DEVICE LOCKED (protected data unavailable)")
+        }
+        center.addObserver(forName: UIApplication.protectedDataDidBecomeAvailableNotification, object: nil, queue: .main) { _ in
+            ProbeLog.shared.log("DEVICE UNLOCKED (protected data available)")
+        }
         var handled: Set<NSNotification.Name> = [
             AVAudioSession.interruptionNotification,
             AVAudioSession.routeChangeNotification,
@@ -101,7 +109,7 @@ final class ProbeRecorder: ObservableObject {
 
     func start(trigger: String) async {
         let t0 = ProcessInfo.processInfo.systemUptime
-        log.log("START requested trigger=\(trigger) appState=\(Self.appState())")
+        log.log("START requested trigger=\(trigger) appState=\(Self.appState()) protectedData=\(Self.protectedData())")
         guard !isRecording else {
             log.log("START ignored: already recording")
             return
@@ -440,6 +448,10 @@ final class ProbeRecorder: ObservableObject {
         case .background: return "background"
         @unknown default: return "unknown"
         }
+    }
+
+    static func protectedData() -> String {
+        UIApplication.shared.isProtectedDataAvailable ? "available" : "unavailable(locked)"
     }
 
     nonisolated private static func ms(since start: TimeInterval) -> Int {

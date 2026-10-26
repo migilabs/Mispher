@@ -30,6 +30,7 @@ Settings in the app apply at the next Start. Use a test passage, never a real co
 Use the default recorder (**AVAudioRecorder → one .m4a**) unless a step says otherwise. After each step, tap **Stop**.
 
 **1. Start from a control**
+- Lock state is logged, not reported: `START requested … protectedData=unavailable(locked)` and `DEVICE LOCKED` / `DEVICE UNLOCKED`. Protected data goes unavailable a few seconds after locking, so wait 15 s after locking before tapping.
 - 1a. Swipe the app away. Lock the phone. Tap **Probe start (background)** in Control Center (on the Lock Screen too). Does it record? The log shows `PROCESS LAUNCH`, `START requested`, `session active` or `session activation FAILED`, and `first audio after … ms`.
 - 1b. Same with **Probe start (open app)**, Face ID included.
 - 1c. Same with Back Tap, phone locked.
