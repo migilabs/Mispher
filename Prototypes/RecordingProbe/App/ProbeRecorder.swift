@@ -110,6 +110,9 @@ final class ProbeRecorder: ObservableObject {
         mode = ProbeMode(rawValue: defaults.string(forKey: "mode") ?? "") ?? .recorderM4A
         let highQuality = defaults.object(forKey: "highQuality") as? Bool ?? true
         let noAlertInterruptions = defaults.bool(forKey: "noAlertInterruptions")
+        // Checklist item 1: iOS refuses a non-mixable session going active in the background ('!int').
+        let mixWithOthers = defaults.bool(forKey: "mixWithOthers")
+        let settings = "highQuality=\(highQuality) noAlertInterruptions=\(noAlertInterruptions) mixWithOthers=\(mixWithOthers)"
         startUptime = t0
         segment = 0
         needsResume = false
@@ -121,12 +124,13 @@ final class ProbeRecorder: ObservableObject {
         do {
             var options: AVAudioSession.CategoryOptions = [.allowBluetoothHFP]
             if highQuality { options.insert(.bluetoothHighQualityRecording) }
+            if mixWithOthers { options.insert(.mixWithOthers) }
             try session.setCategory(.playAndRecord, mode: .default, options: options)
             try session.setPrefersNoInterruptionsFromSystemAlerts(noAlertInterruptions)
             try session.setActive(true)
-            log.log("session active after \(Self.ms(since: t0)) ms (highQuality=\(highQuality) noAlertInterruptions=\(noAlertInterruptions))")
+            log.log("session active after \(Self.ms(since: t0)) ms (\(settings))")
         } catch {
-            log.log("session activation FAILED after \(Self.ms(since: t0)) ms: \(describe(error))")
+            log.log("session activation FAILED after \(Self.ms(since: t0)) ms (\(settings)): \(describe(error))")
             status = "Session refused"
             await endLiveActivity()
             return

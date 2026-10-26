@@ -34,6 +34,7 @@ Use the default recorder (**AVAudioRecorder → one .m4a**) unless a step says o
 - 1b. Same with **Probe start (open app)**, Face ID included.
 - 1c. Same with Back Tap, phone locked.
 - Also note roughly how long from tap to the recording indicator, by eye.
+- Run 1a–1c once with **Mixable session (.mixWithOthers)** off and once with it on. With it off, iOS refuses a background start with `'!int'` (a non-mixable session can't go active in the background); the toggle tests whether a mixable session can.
 
 **2. Interruptions while locked** (start, lock, then):
 - 2a. Call yourself from another phone and decline.

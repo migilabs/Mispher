@@ -7,6 +7,7 @@ struct ContentView: View {
     @AppStorage("mode") private var mode = ProbeMode.recorderM4A.rawValue
     @AppStorage("highQuality") private var highQuality = true
     @AppStorage("noAlertInterruptions") private var noAlertInterruptions = false
+    @AppStorage("mixWithOthers") private var mixWithOthers = false
     @State private var files: [URL] = []
 
     var body: some View {
@@ -33,6 +34,7 @@ struct ContentView: View {
                     }
                     Toggle("AirPods high-quality mode", isOn: $highQuality)
                     Toggle("No interruptions from system alerts", isOn: $noAlertInterruptions)
+                    Toggle("Mixable session (.mixWithOthers)", isOn: $mixWithOthers)
                 }
 
                 Section("Recordings") {
