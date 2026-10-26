@@ -50,6 +50,8 @@ final class ProbeRecorder: ObservableObject {
     private var segment = 0
     private var startUptime: TimeInterval = 0
     private var firstAudioTimer: Timer?
+    /// Set when the system interrupts a Recording; cleared once the session is active again.
+    private var needsResume = false
 
     private init() {
         let center = NotificationCenter.default
@@ -65,14 +67,31 @@ final class ProbeRecorder: ObservableObject {
         center.addObserver(forName: .AVAudioEngineConfigurationChange, object: nil, queue: .main) { [weak self] note in
             MainActor.assumeIsolated { self?.handleEngineConfigurationChange(note) }
         }
-        // Catch-all: logs every other AVAudioSession notification by name, so iOS 27's
-        // resumptionRecommendationNotification shows up without needing the iOS 27 SDK.
-        let handled: Set<NSNotification.Name> = [
+        var handled: Set<NSNotification.Name> = [
             AVAudioSession.interruptionNotification,
             AVAudioSession.routeChangeNotification,
             AVAudioSession.mediaServicesWereResetNotification,
         ]
-        center.addObserver(forName: nil, object: session, queue: .main) { note in
+        // iOS 27 deprecates interruptionNotification in favour of these lifecycle notifications.
+        // Observe both generations: the device test checks which ones iOS 27 still posts.
+        if #available(iOS 27.0, *) {
+            center.addObserver(forName: AVAudioSession.didBecomeActiveNotification, object: session, queue: .main) { _ in
+                MainActor.assumeIsolated { ProbeLog.shared.log("SESSION ACTIVE appState=\(Self.appState())") }
+            }
+            center.addObserver(forName: AVAudioSession.didBecomeInactiveNotification, object: session, queue: .main) { [weak self] note in
+                MainActor.assumeIsolated { self?.handleDeactivation(note) }
+            }
+            center.addObserver(forName: AVAudioSession.resumptionRecommendationNotification, object: session, queue: .main) { [weak self] note in
+                MainActor.assumeIsolated { self?.handleResumptionRecommendation(note) }
+            }
+            handled.formUnion([
+                AVAudioSession.didBecomeActiveNotification,
+                AVAudioSession.didBecomeInactiveNotification,
+                AVAudioSession.resumptionRecommendationNotification,
+            ])
+        }
+        // Catch-all: logs every other AVAudioSession notification by name and contents.
+        center.addObserver(forName: nil, object: session, queue: .main) { [handled] note in
             guard !handled.contains(note.name) else { return }
             ProbeLog.shared.log("SESSION NOTIFICATION \(note.name.rawValue) userInfo=\(note.userInfo.map { "\($0)" } ?? "nil")")
         }
@@ -93,6 +112,7 @@ final class ProbeRecorder: ObservableObject {
         let noAlertInterruptions = defaults.bool(forKey: "noAlertInterruptions")
         startUptime = t0
         segment = 0
+        needsResume = false
         recordingName = Self.timestamp()
 
         // AudioRecordingIntent: the recording stops unless a Live Activity runs for its whole length.
@@ -214,20 +234,31 @@ final class ProbeRecorder: ObservableObject {
         switch type {
         case .began:
             log.log("INTERRUPTION began reason=\(reason) appState=\(Self.appState()) recorder.isRecording=\(recorder?.isRecording ?? false) engine.isRunning=\(engine?.isRunning ?? false)")
-            if isRecording { status = "Interrupted" }
+            if isRecording {
+                needsResume = true
+                status = "Interrupted"
+            }
         case .ended:
             let optionsRaw = info[AVAudioSessionInterruptionOptionKey] as? UInt ?? 0
             let shouldResume = AVAudioSession.InterruptionOptions(rawValue: optionsRaw).contains(.shouldResume)
             log.log("INTERRUPTION ended shouldResume=\(shouldResume) reason=\(reason) appState=\(Self.appState())")
-            if isRecording { resume(after: "interruption") }
+            if isRecording { resume(after: "interruption ended") }
         @unknown default:
             log.log("INTERRUPTION unknown type raw=\(typeRaw)")
         }
     }
 
+    /// Called by whichever arrives first: the old interruption-ended notification or iOS 27's
+    /// resumption recommendation. A refused reactivation keeps `needsResume`, so a later
+    /// recommendation retries.
     private func resume(after cause: String) {
+        guard needsResume else {
+            log.log("resume after \(cause) skipped: already resumed")
+            return
+        }
         do {
             try session.setActive(true)
+            needsResume = false
             log.log("session reactivated after \(cause) appState=\(Self.appState())")
         } catch {
             log.log("session reactivation REFUSED after \(cause) appState=\(Self.appState()): \(describe(error))")
@@ -244,6 +275,26 @@ final class ProbeRecorder: ObservableObject {
             restartEngineSegment(reason: "resume after \(cause)")
         }
         status = "Recording: \(mode.label)"
+    }
+
+    @available(iOS 27.0, *)
+    private func handleDeactivation(_ note: Notification) {
+        let context = note.userInfo?[AVAudioSession.deactivationContextKey] as? AVAudioSession.DeactivationContext
+        let source = context.map { Self.deactivationSourceName($0.source) } ?? "?"
+        let reason = context?.interruptionContext.map { Self.interruptionReasonName($0.reason.rawValue) } ?? "none"
+        log.log("SESSION INACTIVE source=\(source) interruptionReason=\(reason) appState=\(Self.appState())")
+        if isRecording, context?.source == .system {
+            needsResume = true
+            status = "Interrupted"
+        }
+    }
+
+    @available(iOS 27.0, *)
+    private func handleResumptionRecommendation(_ note: Notification) {
+        let context = note.userInfo?[AVAudioSession.resumptionContextKey] as? AVAudioSession.ResumptionContext
+        let recommendation = context.map { Self.recommendationName($0.recommendation) } ?? "?"
+        log.log("RESUMPTION RECOMMENDATION \(recommendation) appState=\(Self.appState())")
+        if isRecording { resume(after: "resumption recommendation") }
     }
 
     private func handleRouteChange(_ note: Notification) {
@@ -306,7 +357,9 @@ final class ProbeRecorder: ObservableObject {
             var text = "\(port.portType.rawValue) '\(port.portName)'"
             if let bluetooth = port.bluetoothMicrophoneExtension {
                 let hq = bluetooth.highQualityRecording
+                let farField = bluetooth.farFieldCapture
                 text += " hq.supported=\(hq.isSupported) hq.enabled=\(hq.isEnabled)"
+                text += " farField.supported=\(farField.isSupported) farField.enabled=\(farField.isEnabled)"
             }
             return text
         }.joined(separator: ", ")
@@ -402,6 +455,24 @@ final class ProbeRecorder: ObservableObject {
         case .builtInMicMuted: return "builtInMicMuted"
         case .routeDisconnected: return "routeDisconnected"
         default: return "raw \(raw)"
+        }
+    }
+
+    @available(iOS 27.0, *)
+    nonisolated private static func deactivationSourceName(_ source: AVAudioSession.DeactivationSource) -> String {
+        switch source {
+        case .app: return "app"
+        case .system: return "system"
+        @unknown default: return "raw \(source.rawValue)"
+        }
+    }
+
+    @available(iOS 27.0, *)
+    nonisolated private static func recommendationName(_ recommendation: AVAudioSession.ResumptionRecommendation) -> String {
+        switch recommendation {
+        case .shouldResume: return "shouldResume"
+        case .shouldNotResume: return "shouldNotResume"
+        @unknown default: return "raw \(recommendation.rawValue)"
         }
     }
 

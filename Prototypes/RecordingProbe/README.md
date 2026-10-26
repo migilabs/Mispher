@@ -39,8 +39,9 @@ Use the default recorder (**AVAudioRecorder → one .m4a**) unless a step says o
 - 2d. A timer going off.
 - 2e. Unlock, start a voice memo in Voice Memos, stop it, lock again.
 - 2f. Repeat 2a with **No interruptions from system alerts** on, and call alerts set to banner style.
-- The log shows `INTERRUPTION began/ended`, `shouldResume`, and whether `session reactivated` or `reactivation REFUSED` (with an error such as `'!int'`).
-- iOS 27 deprecates `shouldResume` in favour of a new resumption-recommendation notification. Any line starting `SESSION NOTIFICATION` is that, or another audio-session notification the probe doesn't handle; it shows the name and its contents.
+- The log shows both generations of interruption events. The old one, deprecated in iOS 27: `INTERRUPTION began/ended` with `shouldResume`. The iOS 27 lifecycle notifications: `SESSION INACTIVE source=system interruptionReason=…`, `RESUMPTION RECOMMENDATION shouldResume|shouldNotResume` and `SESSION ACTIVE`.
+- The probe resumes on whichever arrives first and logs `session reactivated` or `reactivation REFUSED` (with an error such as `'!int'`). After a refusal, a later recommendation retries.
+- Any line starting `SESSION NOTIFICATION` is another audio-session notification the probe doesn't handle; it shows the name and its contents.
 
 **3. App killed mid-Recording** (for each of the three recorders):
 - 3a. Swipe the app away while recording.
@@ -48,7 +49,7 @@ Use the default recorder (**AVAudioRecorder → one .m4a**) unless a step says o
 - Reopen the app and tap **Check all files**. The log shows `readable, … s` or `UNREADABLE` per file.
 
 **4. AirPods Pro 2** (high-quality mode on):
-- 4a. Start with AirPods in. The log line `ROUTE at start` shows `hq.supported` / `hq.enabled` and the sample rate.
+- 4a. Start with AirPods in. The log line `ROUTE at start` shows `hq.supported` / `hq.enabled`, `farField.supported` / `farField.enabled` and the sample rate.
 - 4b. While recording: take one AirPod out, then both, put them in the case and close it, put them back in, and let them switch to the Mac (play something there).
 - 4c. Repeat 4b with each engine recorder.
 - The log shows each `ROUTE CHANGE reason=…`, what `AVAudioRecorder` does 0 and 2 s after the change, and `ENGINE CONFIGURATION CHANGE` with new segments for the engine recorders.
