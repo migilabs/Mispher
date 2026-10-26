@@ -4,7 +4,10 @@ A throwaway iPhone app for the Mispher map ticket [Device test: how does Recordi
 
 Lives on the `prototype/recording-probe` branch only, never merged. Mispher's real app starts fresh in P0 and takes only the facts this probe finds.
 
-> Written without a compiler: the environment that wrote it has no Xcode. Every Apple API was checked against Apple's documentation, but expect a small fix or two on first build.
+> Built on 2026-10-26 with Xcode 27.1 (27A9275), iOS 27.1 SDK, Swift 6.4 compiler in Swift 5 mode: no errors, no warnings. Compile check from the terminal:
+> ```bash
+> xcodebuild -project RecordingProbe.xcodeproj -scheme RecordingProbe -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build
+> ```
 
 ## Set up (once)
 

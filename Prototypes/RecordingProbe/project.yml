@@ -34,6 +34,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.migilabs.mispher.recordingprobe
+        TARGETED_DEVICE_FAMILY: "1" # iPhone only
     dependencies:
       - target: RecordingProbeWidgets
   RecordingProbeWidgets:
@@ -54,4 +55,5 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.migilabs.mispher.recordingprobe.widgets
+        TARGETED_DEVICE_FAMILY: "1"
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) WIDGET_EXTENSION
